@@ -4,6 +4,13 @@ const multer = require("multer");
 const bodyParser = require("body-parser");
 const mongoose = require("mongoose");
 
+const profile = new mongoose.Schema({
+  file: String,
+  name: String,
+});
+
+const Profile = mongoose.model("Profil", profile);
+
 mongoose.connect("mongodb://localhost/file", {
   useNewUrlParser: true,
   useUnifiedTopology: true,
@@ -11,13 +18,13 @@ mongoose.connect("mongodb://localhost/file", {
 app.use(express.static("public"));
 app.set("view engine", "ejs");
 app.use(bodyParser.urlencoded({ extended: false }));
-// app.use("/uploads" + express.static("uploads"));
+app.use("/uploads", express.static("uploads"));
 //Step 3:
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     // cb("firstArgsIsError","destinationfolder")
-    cb(null, "./uploads");
+    cb(null, "./uploads/");
   },
   filename: (req, file, cb) => {
     cb(null, new Date().toISOString() + file.originalname); // creating file names
@@ -29,7 +36,11 @@ const storage = multer.diskStorage({
 const fileFilter = (req, file, cb) => {
   // cb(null,false) // rejecting file
   // cb(null,true) // accetping file
-  if (file.mimetype === "image/jpeg" || file.mimetype === "image/jpg") {
+  if (
+    file.mimetype === "image/jpeg" ||
+    file.mimetype === "image/jpg" ||
+    file.mimetype === "image/png"
+  ) {
     cb(null, true);
   } else {
     cb(null, false);
@@ -53,7 +64,8 @@ const upload = multer({
   },
   fileFilter: fileFilter,
 });
-// Step :1 first create a folder with it
+
+// Step :1 first create a folder with it and then create a storage
 // const upload = multer({ dest: "uploads" });
 
 app.get("/", (req, res) => {
@@ -69,7 +81,9 @@ app.get("/file", (req, res) => {
 // it just a name , we dont need to worry about it
 app.post("/file", upload.single("file"), (req, res) => {
   const name = req.body.name;
-  console.log(req.file);
+  const file = req.file.path;
+  const proifle = { file, name };
+  Profile.create(proifle);
   res.send("hello World");
 });
 
