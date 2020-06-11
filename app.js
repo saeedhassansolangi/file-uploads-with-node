@@ -4,7 +4,7 @@ const multer = require("multer");
 const bodyParser = require("body-parser");
 const { connect } = require("mongoose");
 const Profile = require("./models/profile");
-const PORT = process.env.PORT || 4242;
+const PORT = process.env.PORT || 4240;
 
 connect("mongodb://localhost/profile", {
   useNewUrlParser: true,
